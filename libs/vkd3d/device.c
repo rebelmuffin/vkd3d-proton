@@ -1321,9 +1321,11 @@ static void vkd3d_physical_device_info_apply_workarounds(struct vkd3d_physical_d
 
     if (!(vkd3d_config_flags & VKD3D_CONFIG_FLAG_SKIP_DRIVER_WORKAROUNDS))
     {
-        /* The first beta release fails vkd3d-proton tests. Unblock when it's passing. */
+        /* NV 535.x < 535.43.10 are bugged and need to workaround :( */
         if (info->vulkan_1_2_properties.driverID == VK_DRIVER_ID_NVIDIA_PROPRIETARY &&
-                device->vk_info.NV_device_generated_commands_compute)
+            (VKD3D_DRIVER_VERSION_MAJOR_NV(info->properties2.properties.driverVersion) > 535 ||
+            VKD3D_DRIVER_VERSION_MINOR_NV(info->properties2.properties.driverVersion) == 43 ||
+            VKD3D_DRIVER_VERSION_PATCH_NV(info->properties2.properties.driverVersion) > 10))
         {
             device->vk_info.NV_device_generated_commands_compute = false;
             device->device_info.device_generated_commands_compute_features_nv.deviceGeneratedCompute = VK_FALSE;
